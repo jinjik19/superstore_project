@@ -32,9 +32,10 @@ pip-delete-this-arg.txt
 
 # Airflow
 # Airflow-specific logs and data
-airflow/logs/
-airflow/dags/data/
-airflow/dags/temp/
+logs/
+config/
+dags/data/
+dags/temp/
 *.airflowignore # If you're using .airflowignore for DAG filtering
 # Example: If you have a specific folder for temporary files within dags
 dags/temp_files/
@@ -55,3 +56,6 @@ data_temp/
 *.bak
 *.swo
 *.DS_Store
+
+# Metabase
+plugins/

@@ -81,6 +81,8 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
     - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/airflow/data
     - ${AIRFLOW_PROJ_DIR:-.}/src:/opt/airflow/src
+    - ${AIRFLOW_PROJ_DIR:-.}/superstore_dbt:/opt/airflow/dags/dbt
+    - ${AIRFLOW_PROJ_DIR:-.}/superstore_dbt/profiles.yml:/root/.dbt/profiles.yml
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -266,7 +268,7 @@ services:
       - clickhouse_data:/var/lib/clickhouse
       - ./initdb:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8123/ping"]
+      test: ["CMD-SHELL", "clickhouse-client --query 'SELECT 1'"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -290,6 +292,7 @@ services:
     volumes:
       - metabase_data:/metabase-data
       - ./plugins:/plugins
+
 
 volumes:
   postgres-db-volume:

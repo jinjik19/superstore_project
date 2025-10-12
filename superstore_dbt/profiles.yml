@@ -1,0 +1,13 @@
+superstore_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: clickhouse
+      port: 8123
+      database: superstore_db
+      schema: mart
+      threads: 4
+      host: clickhouse
+      user: jinjik
+      password: 1q2w3e4r5t
+      secure: false

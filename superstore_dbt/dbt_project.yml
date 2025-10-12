@@ -1,0 +1,24 @@
+name: superstore_dbt
+
+profile: superstore_dbt
+
+seed-paths: ["seeds"]
+model-paths: ["models"]
+macro-paths: ["macros"]
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+seeds:
+  # Builds seeds into '<your_schema_name>_raw'
+  superstore_dbt:
+    +schema: raw
+
+models:
+  superstore_dbt:
+    core:
+      +schema: core
+      +materialized: table
+    marts:
+      +schema: mart
+      +materialized: table
