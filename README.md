@@ -1,6 +1,6 @@
 # Superstore project
 
-This project processes the Superstore.xls dataset using the modern data engineering stack learned in Module 4.
+This project processes the Superstore.xls dataset using the modern data engineering stack learned course [DataLearn](https://github.com/Data-Learn/data-engineering) in Module 4.
 The pipeline performs ETL (Extract, Transform, Load) operations, builds a data mart in ClickHouse, and visualizes insights through Metabase dashboards.
 
 ---
@@ -33,8 +33,8 @@ The pipeline performs ETL (Extract, Transform, Load) operations, builds a data m
 
 1. **Clone the repository:** 
    ```bash
-   git clone [https://github.com/jinjik19/DE-101.git](https://github.com/jinjik19/DE-101.git) 
-   cd DE-101/Module4/superstore_project
+   git clone [https://github.com/jinjik19/superstore_project](https://github.com/jinjik19/superstore_project) 
+   cd superstore_project
    ``
    
 2. **Set up environment variables:** 
@@ -48,5 +48,11 @@ The pipeline performs ETL (Extract, Transform, Load) operations, builds a data m
    ```bash 
    docker-compose up --build -d 
    ``
+
+4. *Copy Superstore.xls to input folder.*
+   ```bash
+   cp data/Superstore.xls data/input/Superstore.xls
+   ```
+   *DAG's will be launched when found Superstore.xls in data/input/*
 
 --- 
