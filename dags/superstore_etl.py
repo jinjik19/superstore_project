@@ -1,7 +1,10 @@
 from datetime import datetime
+from typing import Any
 
 import pandas as pd
+from airflow import XComArg
 from airflow.datasets import Dataset
+from airflow.models.taskinstance import TaskInstance
 from airflow.sdk import Variable, dag, task
 from clickhouse_connect import get_client
 
@@ -28,7 +31,10 @@ client = get_client(dsn=CLICKHOUSE_URL)
 )
 def etl_superstore() -> None:
     @task(task_id="get_file_path")
-    def get_file_path(ti=None, **kwargs) -> str:
+    def get_file_path(ti: TaskInstance | None = None, **kwargs: dict[str, Any]) -> Any:
+        if ti is None:
+            raise ValueError("Task instance is required")
+
         triggering_events = kwargs.get("triggering_asset_events")
         if not triggering_events:
             raise ValueError("DAG triggered without asset event information!")
@@ -58,7 +64,7 @@ def etl_superstore() -> None:
             This task reads data from the specified Excel sheet and loads it into the corresponding ClickHouse staging layer.
         """
     )
-    def read_excel_to_clickhouse(file_to_process: str) -> None:
+    def read_excel_to_clickhouse(file_to_process: XComArg) -> None:
         map_df = dict()
 
         for sheet_name in ["Orders", "Returns", "People"]:
@@ -75,7 +81,7 @@ def etl_superstore() -> None:
             client.insert_df(table=table_name, df=df)
 
     @task.bash()
-    def run_transformation():
+    def run_transformation() -> str:
         # TODO: доделать вызов dbt
         return "echo 'dbt run command'"
 

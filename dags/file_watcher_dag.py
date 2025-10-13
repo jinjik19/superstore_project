@@ -16,9 +16,9 @@ superstore_dataset = Dataset(FILE_PATH)
     catchup=False,
     tags=["watcher"],
 )
-def file_watcher_dag():
+def file_watcher_dag() -> None:
     @task(outlets=[superstore_dataset])
-    def check_for_file():
+    def check_for_file() -> dict[str, str]:
         if os.path.exists(FILE_PATH):
             splited_file_path = FILE_PATH.split("/")
             name, ext = os.path.splitext(os.path.basename(splited_file_path.pop()))

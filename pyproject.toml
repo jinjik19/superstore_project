@@ -38,7 +38,7 @@ src = ["src", "dags"]
 select = ["E", "F", "B", "W", "I"]
 ignore = ["E501"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["src", "dags"]
 combine-as-imports = true
 force-single-line = false
@@ -61,6 +61,3 @@ show_error_codes = true
 pretty = true
 exclude = ["venv", ".venv", "tests"]
 files = ["src", "dags"]
-
-[tool.mypy.plugins.django-stubs]
-django_settings_module = "config.settings"

@@ -9,7 +9,7 @@ format:
 type-check:
 	poetry run mypy src dags
 
-check: lint typecheck
+check: lint type-check
 
 up:
 	docker-compose up -d
