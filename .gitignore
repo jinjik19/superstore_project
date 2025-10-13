@@ -30,6 +30,8 @@ logs/
 pip-log.txt
 pip-delete-this-arg.txt
 .ipynb_checkpoints
+.mypy_cache/
+.ruff_cache/
 
 # Airflow
 # Airflow-specific logs and data
