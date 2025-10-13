@@ -1,0 +1,8 @@
+import re
+
+
+def to_snake_case(name):
+    name = name.strip()
+    name = re.sub(r"[\s\-\.]+", "_", name)
+    name = re.sub(r"[^0-9a-zA-Z_]", "", name)
+    return name.lower()

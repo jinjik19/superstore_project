@@ -1,0 +1,44 @@
+# Python cache / build
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.log
+
+# Virtual environments
+.venv/
+.env/
+env/
+venv/
+
+# Jupyter notebooks and data
+notebooks/
+*.ipynb_checkpoints/
+data/
+*.csv
+*.xls
+*.xlsx
+*.parquet
+
+# Git and IDE stuff
+.git/
+.gitignore
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local artifacts
+dist/
+build/
+.eggs/
+*.egg-info/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Airflow logs and temp files
+logs/
+tmp/
