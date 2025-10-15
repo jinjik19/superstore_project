@@ -1,0 +1,7 @@
+sources:
+  - name: stg_superstore
+    database: superstore_db
+    tables:
+      - name: stg_orders
+      - name: stg_returns
+      - name: stg_people

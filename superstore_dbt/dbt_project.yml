@@ -1,4 +1,6 @@
 name: superstore_dbt
+version: 1.0.0
+config-version: 2
 
 profile: superstore_dbt
 
@@ -9,16 +11,9 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
-seeds:
-  # Builds seeds into '<your_schema_name>_raw'
-  superstore_dbt:
-    +schema: raw
-
 models:
   superstore_dbt:
     core:
-      +schema: core
       +materialized: table
     marts:
-      +schema: mart
       +materialized: table

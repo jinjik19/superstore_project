@@ -4,8 +4,8 @@ superstore_dbt:
     dev:
       type: clickhouse
       port: 8123
+      schema: superstore_db
       database: superstore_db
-      schema: mart
       threads: 4
       host: clickhouse
       user: jinjik
