@@ -7,7 +7,7 @@ superstore_dbt:
       schema: superstore_db
       database: superstore_db
       threads: 4
-      host: localhost
+      host: clickhouse
       user: jinjik
       password: 1q2w3e4r5t
       secure: false
