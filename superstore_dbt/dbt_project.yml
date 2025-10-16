@@ -13,7 +13,5 @@ clean-targets:
 
 models:
   superstore_dbt:
-    core:
-      +materialized: table
     marts:
       +materialized: table

@@ -64,13 +64,18 @@ def etl_superstore() -> None:
             This task reads data from the specified Excel sheet and loads it into the corresponding ClickHouse staging layer.
         """
     )
-    def read_excel_to_clickhouse(file_to_process: XComArg) -> None:
+    def read_excel_to_clickhouse(file_to_process: XComArg, **kwargs) -> None:
+        run_id = kwargs["run_id"]
         map_df = dict()
+        table_names = ["Orders", "Returns", "People"]
 
-        for sheet_name in ["Orders", "Returns", "People"]:
+        for sheet_name in table_names:
             logger.info(f"Reading sheet: {sheet_name}")
             df = pd.read_excel(file_to_process, sheet_name=sheet_name)
             df.rename(columns=to_snake_case, inplace=True)
+            df["source_name"] = f"Superstore_{sheet_name}"
+            df["load_date"] = datetime.now()
+            df["batch_id"] = run_id
             map_df[sheet_name.lower()] = df
 
 

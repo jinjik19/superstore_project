@@ -1,1 +1,0 @@
-select * from {{source('stg_superstore', 'stg_people')}}

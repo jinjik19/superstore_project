@@ -24,23 +24,32 @@ CREATE TABLE IF NOT EXISTS stg_orders
     sales           Float64,
     quantity        Int32,
     discount        Float32,
-    profit          Float64
+    profit          Float64,
+    load_date       DateTime,
+    source_name     String,
+    batch_id        String
 )
-ENGINE = MergeTree()
-ORDER BY row_id;
+ENGINE = ReplacingMergeTree(load_date)
+ORDER BY (row_id, load_date);
 
 CREATE TABLE IF NOT EXISTS stg_people
 (
-    person  String,
-    region  String
+    person          String,
+    region          String,
+    load_date       DateTime,
+    source_name     String,
+    batch_id        String
 )
-ENGINE = MergeTree()
-ORDER BY person;
+ENGINE = ReplacingMergeTree(load_date)
+ORDER BY (person, region, load_date);
 
 CREATE TABLE IF NOT EXISTS stg_returns
 (
-    returned   String,
-    order_id   String
+    returned     String,
+    order_id     String,
+    load_date    DateTime,
+    source_name  String,
+    batch_id     String
 )
-ENGINE = MergeTree()
-ORDER BY order_id;
+ENGINE = ReplacingMergeTree(load_date)
+ORDER BY (order_id, load_date);
