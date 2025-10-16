@@ -1,17 +1,22 @@
-name: superstore_dbt
+name: "superstore_dbt"
 version: 1.0.0
 config-version: 2
 
-profile: superstore_dbt
+profile: "superstore_dbt"
 
 seed-paths: ["seeds"]
 model-paths: ["models"]
 macro-paths: ["macros"]
+test-paths: ["tests"]
 clean-targets:
   - "target"
   - "dbt_packages"
 
+vars:
+  start_date: '2014-01-01'
+  end_date: '2021-12-31'
+
 models:
   superstore_dbt:
-    marts:
+    mart:
       +materialized: table

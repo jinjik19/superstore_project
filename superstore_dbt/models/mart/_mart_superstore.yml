@@ -1,0 +1,240 @@
+version: 2
+
+models:
+  - name: mart_dim_customer
+    description: "Dimension model representing a unique customer. Contains one record per unique customer ID."
+    columns:
+      - name: customer_key
+        description: "Surrogate key for the customer dimension, generated in dbt."
+        tests:
+          - unique
+          - not_null
+        meta:
+          owner: "Data Engineering Team"
+      - name: customer_id
+        description: "Natural key for the customer, sourced from the operational system."
+        tests:
+          - unique
+          - not_null
+      - name: customer_name
+        description: "The full name of the customer."
+        tests:
+          - not_null
+
+  - name: mart_dim_geo
+    description: "Dimension model for geographical locations, defined by the combination of country, state, city, and postal code."
+    columns:
+      - name: geo_key
+        description: "Surrogate key for the geographical dimension."
+        tests:
+          - unique
+          - not_null
+      - name: country
+        tests: [not_null]
+      - name: region
+        tests: [not_null]
+      - name: city
+        tests: [not_null]
+      - name: state
+        tests: [not_null]
+      - name: postal_code
+        tests: [not_null]
+
+  - name: mart_dim_product
+    description: "Dimension model representing a unique product and its attributes."
+    columns:
+      - name: product_key
+        description: "Surrogate key for the product dimension."
+        tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: "Natural key for the product, from the source system."
+        tests:
+          - not_null
+      - name: product_name
+        tests: [not_null]
+      - name: category
+        tests: 
+          - not_null
+          - accepted_values:
+              values: ['Furniture', 'Office Supplies', 'Technology', 'Unknown']
+      - name: sub_category
+        tests: [not_null]
+      - name: segment
+        tests:
+          - accepted_values:
+              values: ['Consumer', 'Corporate', 'Home Office', 'Unknown']
+
+  - name: mart_dim_shipping
+    description: "Dimension model for shipping modes."
+    columns:
+      - name: ship_key
+        description: "Surrogate key for the shipping mode."
+        tests:
+          - unique
+          - not_null
+      - name: ship_mode
+        description: "The name of the shipping mode (e.g., 'Same Day', 'First Class')."
+        tests:
+          - unique
+          - not_null
+
+  - name: mart_dim_orders
+    description: "Dimension model representing a unique sales order. Contains attributes about the order itself."
+    columns:
+      - name: order_key
+        description: "Surrogate key for the order dimension."
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Natural key for the order, from the source system."
+        tests:
+          - unique
+          - not_null
+      - name: returned
+        description: "A boolean flag indicating if the order was returned."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: order_date_key
+        description: "Foreign key to the calendar dimension for the order date."
+        tests:
+          - relationships:
+              to: ref('mart_dim_calendar')
+              field: date_key
+      - name: ship_date_key
+        description: "Foreign key to the calendar dimension for the ship date."
+        tests:
+          - relationships:
+              to: ref('mart_dim_calendar')
+              field: date_key
+
+  - name: mart_dim_managers
+    description: "Dimension model linking regional managers to their region."
+    columns:
+      - name: manager_key
+        description: "Surrogate key for the manager."
+        tests:
+          - unique
+          - not_null
+      - name: person
+        description: "The name of the regional manager."
+        tests:
+          - unique
+          - not_null
+      - name: region
+        description: "The region the manager is responsible for."
+        tests: [not_null]
+
+  - name: mart_dim_calendar
+    description: "Date dimension providing a comprehensive set of date attributes for analysis."
+    columns:
+      - name: date_key
+        description: "Surrogate key for the date in YYYYMMDD format."
+        tests:
+          - unique
+          - not_null
+      - name: full_date
+        description: "The complete date value."
+        tests:
+          - unique
+          - not_null
+      - name: year
+        tests: [not_null]
+      - name: quarter
+        tests: [not_null]
+      - name: quarter_name
+        tests: [not_null]
+      - name: month
+        tests: [not_null]
+      - name: month_name
+        tests: [not_null]
+      - name: day_of_month
+        tests: [not_null]
+      - name: day_of_year
+        tests: [not_null]
+      - name: week_of_year
+        tests: [not_null]
+      - name: day_of_week
+        tests: [not_null]
+      - name: day_of_week_name
+        tests: [not_null]
+      - name: is_weekend
+        tests: [not_null]
+      - name: is_month_start
+        tests: [not_null]
+      - name: is_month_end
+        tests: [not_null]
+
+  - name: mart_fct_sales
+    description: "Fact table containing sales transactions at the order-product level. This is the central table for sales analysis."
+    columns:
+      - name: sales_key
+        description: "Surrogate primary key for the sales fact table."
+        tests:
+          - unique
+          - not_null
+      - name: sales
+        description: "The total sales amount for the transaction line."
+        tests:
+          - not_null
+      - name: quantity
+        description: "The number of units sold."
+        tests: [not_null]
+      - name: profit
+        description: "The profit amount for the transaction line."
+        tests: [not_null]
+      - name: discount
+        description: "The discount applied, as a decimal (e.g., 0.2 for 20%)."
+        tests: [not_null]
+      - name: order_key
+        description: "Foreign key to the orders dimension."
+        tests:
+          - relationships:
+              to: ref('mart_dim_orders')
+              field: order_key
+      - name: product_key
+        description: "Foreign key to the products dimension."
+        tests:
+          - relationships:
+              to: ref('mart_dim_product')
+              field: product_key
+      - name: geo_key
+        description: "Foreign key to the geography dimension."
+        tests:
+          - relationships:
+              to: ref('mart_dim_geo')
+              field: geo_key
+      - name: customer_key
+        description: "Foreign key to the customers dimension."
+        tests:
+          - relationships:
+              to: ref('mart_dim_customer')
+              field: customer_key
+      - name: ship_key
+        description: "Foreign key to the shipping dimension."
+        tests:
+          - relationships:
+              to: ref('mart_dim_shipping')
+              field: ship_key
+      - name: manager_key
+        description: "Foreign key to the managers dimension."
+        tests:
+          - relationships:
+              to: ref('mart_dim_managers')
+              field: manager_key
+      - name: order_date_key
+        description: "Foreign key to the calendar dimension for the order date."
+        tests:
+          - relationships:
+              to: ref('mart_dim_calendar')
+              field: date_key
+      - name: ship_date_key
+        description: "Foreign key to the calendar dimension for the ship date."
+        tests:
+          - relationships:
+              to: ref('mart_dim_calendar')
+              field: date_key
