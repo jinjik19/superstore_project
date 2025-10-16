@@ -85,10 +85,9 @@ def etl_superstore() -> None:
             logger.info(f"Dataframe {table_name} preview:\n{df.head()}")
             client.insert_df(table=table_name, df=df)
 
-    @task.bash()
+    @task.bash
     def run_transformation() -> str:
-        # TODO: доделать вызов dbt
-        return "echo 'dbt run command'"
+        return "cd /opt/airflow/superstore_dbt/ && dbt build"
 
     processed_file_path = get_file_path()
     read_excel_to_clickhouse(processed_file_path)  >> run_transformation()
