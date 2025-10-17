@@ -21,6 +21,47 @@ The pipeline performs ETL (Extract, Transform, Load) operations, builds a data m
 ### Architecture
 ![Architecture](./docs/architecture.drawio.svg)
 
+## 🧩 Структура проекта
+```bash
+.
+├── Dockerfile.airflow
+├── Makefile
+├── README.md
+├── dags                                   # DAG's
+│   ├── file_watcher_dag.py
+│   └── superstore_etl.py
+├── data                                   # Folder with our fils
+│   ├── Superstore.xls
+│   └── input                              # Folder for triggered DAG file_watch_superstore
+├── docker-compose.yml
+├── docs                                   # project docs
+│   └── architecture.drawio.svg
+├── initdb                                 # sql scripts for init DB
+│   └── init.sql
+├── metabase_data                          # metabase files and db
+├── notebooks                              # jupyter notebooks
+│   └── work_with_superstore.ipynb
+├── plugins                                # plugins for metabase
+├── poetry.lock
+├── pyproject.toml
+├── src                                    # Python scripts
+│   └── utils
+│       ├── logger.py
+│       └── snake_case.py
+└── superstore_dbt                         # DBT project
+    ├── README.md
+    ├── dbt_project.yml
+    ├── macros
+    ├── models
+    │   └── mart
+    ├── package-lock.yml
+    ├── packages.yml
+    ├── profiles.yml
+    ├── seeds
+    └── tests
+        └── check_count_rows_in_fct_sales.sql
+```
+
 --- 
 ## ⚙️ Getting Started 
 
@@ -63,10 +104,49 @@ The pipeline performs ETL (Extract, Transform, Load) operations, builds a data m
 
 --- 
    
-   ## 🕹️ Usage 
+## 🕹️ Usage 
 
-   - http://localhost:8080 - Airflow UI. You can manage DAGS. The first DAG is named `file_watch_superstore`. `file_watch_superstore` check file Superstore.xls in folder `data/input/`. When Superstore.xls catched, after that `file_watch_superstore` triggered the second DAG `superstore_etl`. This DAG run load data from file to Clickhouse and after that transform and create data mart
-   
-   - http://localhost:8000 - Metabase Dashboard. test@example.com/superstore12345
-   - http://localhost:8001 - dbt data docs.
-   - http://localhost:8123 - URI for connect to Clickhouse. USER: default
+- http://localhost:8080 - Airflow UI. You can manage DAGS. The first DAG is named `file_watch_superstore`. `file_watch_superstore` check file Superstore.xls in folder `data/input/`. When Superstore.xls catched, after that `file_watch_superstore` triggered the second DAG `superstore_etl`. This DAG run load data from file to Clickhouse and after that transform and create data mart
+
+- http://localhost:8000 - Metabase Dashboard. test@example.com/superstore12345
+- http://localhost:8001 - dbt data docs.
+- http://localhost:8123 - URI for connect to Clickhouse. USER: default
+
+---
+
+## 📊 Data Model 
+
+Final Data Mart Fact table: mart_fct_sales
+
+
+| Column Name    | Data Type | Description                                              |
+| :------------- | :-------- | :------------------------------------------------------- |
+| sales_key      | UInt64    | Unique identifier for each sales record.                 |
+| sales          | Float64   | The total sales amount for the transaction.              |
+| quantity       | Int32     | The number of units sold.                                |
+| profit         | Float64   | The profit generated from the sale.                      |
+| discount       | Float32   | The discount applied to the sale, likely as a percentage.|
+| order_key      | Int64     | Foreign key referencing mart_dim_orders.                 |
+| product_key    | Int64     | Foreign key referencing mart_dim_product.                |
+| geo_key        | Int64     | Foreign key referencing mart_dim_get.                    |
+| customer_key   | Int64     | Foreign key referencing mart_dim_customer.               |
+| ship_key       | Int32     | Foreign key referencing mart_dim_shipping.               |
+| manager_key    | Int64     | Foreign key referencing mart_dim_managers.               |
+| order_date_key | Int32     | Foreign key referencing mart_dim_calendar.               |
+| ship_date_key  | Int32     | Foreign key referencing mart_dim_calendar.               |
+
+---
+
+## 📊 Dashboard
+
+### KPI
+![KPI](./docs/images/Dashboard-1.png)
+
+### Sales & Profit
+![Sales And Profit](./docs/images/Dashboard-2.png)
+
+### Profitability
+![Profitability](./docs/images/Dashboard-3.png)
+
+### Customers
+![Customers](./docs/images/Dashboard-4.png)
