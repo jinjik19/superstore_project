@@ -1,13 +1,116 @@
+version: 2
+
 sources:
-  - name: stg_superstore
+  - name: superstore_db
+    description: "Contains raw staging data loaded from the Superstore.xls file."
     database: superstore_db
+    freshness:
+      warn_after: {count: 24, period: hour}
+      error_after: {count: 48, period: hour}
+    loaded_at_field: load_date
+
     tables:
       - name: stg_orders
+        description: "Raw sales order data. Each row represents a single product line within an order."
         columns:
           - name: row_id
-            description: primary key
+            description: "A unique identifier for each row in the source file."
             tests:
               - unique
               - not_null
-      - name: stg_returns
+          - name: order_id
+            description: "The unique identifier for a sales order."
+            tests:
+              - not_null
+          - name: order_date
+            description: "The date the order was placed."
+            tests:
+              - not_null
+          - name: ship_date
+            description: "The date the order was shipped."
+          - name: ship_mode
+            description: "The shipping method used for the order."
+          - name: customer_id
+            description: "The unique identifier for a customer."
+            tests:
+              - not_null
+          - name: customer_name
+            description: "The name of the customer."
+          - name: segment
+            description: "The customer segment (e.g., Consumer, Corporate)."
+          - name: country
+            description: "The country of the customer's address."
+          - name: city
+            description: "The city of the customer's address."
+          - name: state
+            description: "The state of the customer's address."
+          - name: postal_code
+            description: "The postal code of the customer's address. Can be null."
+          - name: region
+            description: "The geographical region."
+          - name: product_id
+            description: "The unique identifier for a product."
+            tests:
+              - not_null
+          - name: category
+            description: "The highest-level product category."
+          - name: sub_category
+            description: "The product sub-category."
+          - name: product_name
+            description: "The name of the product."
+          - name: sales
+            description: "The sales amount for the transaction line."
+          - name: quantity
+            description: "The number of units sold."
+          - name: discount
+            description: "The discount applied to the transaction line."
+          - name: profit
+            description: "The profit amount for the transaction line."
+          - name: load_date
+            description: "The timestamp when this record was loaded into the staging table."
+            tests:
+              - not_null
+          - name: source_name
+            description: "The name of the source file or system."
+          - name: batch_id
+            description: "A unique identifier for the batch load job."
+
       - name: stg_people
+        description: "Raw data linking regional managers to their respective regions."
+        columns:
+          - name: person
+            description: "The name of the regional manager."
+            tests:
+              - not_null
+              - unique
+          - name: region
+            description: "The region this person manages."
+            tests:
+              - not_null
+          - name: load_date
+            description: "The timestamp when this record was loaded."
+          - name: source_name
+            description: "The name of the source file."
+          - name: batch_id
+            description: "A unique identifier for the batch load job."
+
+      - name: stg_returns
+        description: "Raw data indicating which orders have been returned."
+        columns:
+          - name: returned
+            description: "A flag indicating if the order was returned (e.g., 'Yes')."
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['Yes', 'No']
+          - name: order_id
+            description: "The unique identifier of the returned order."
+            tests:
+              - not_null
+              - unique
+          - name: load_date
+            description: "The timestamp when this record was loaded."
+          - name: source_name
+            description: "The name of the source file."
+          - name: batch_id
+            description: "A unique identifier for the batch load job."
