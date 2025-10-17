@@ -76,7 +76,7 @@ x-airflow-common:
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     # The following line can be used to set a custom config file, stored in the local config folder
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
-    AIRFLOW_VAR_CLICKHOUSE_URL: clickhouse://$DW_USER:$DW_PASSWORD@clickhouse:8123/superstore_db
+    AIRFLOW_VAR_CLICKHOUSE_URL: clickhouse://clickhouse:8123/superstore_db
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -264,9 +264,6 @@ services:
 
   clickhouse:
     image: clickhouse/clickhouse-server:25.8
-    environment:
-      - CLICKHOUSE_USER=$DW_USER
-      - CLICKHOUSE_PASSWORD=$DW_PASSWORD
     volumes:
       - clickhouse_data:/var/lib/clickhouse
       - ./initdb:/docker-entrypoint-initdb.d
@@ -279,10 +276,12 @@ services:
     ports:
       - "8123:8123"
       - "9000:9000"
+    environment:
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
 
   metabase:
     image: metabase/metabase:v0.56.8.x
-    container_name: datalearn_metabase
+    container_name: superstore_metabase
     depends_on:
       clickhouse:
         condition: service_healthy
@@ -293,11 +292,27 @@ services:
       MB_DB_FILE: /metabase-data/metabase.db
       MB_PLUGINS_DIR: /plugins
     volumes:
-      - metabase_data:/metabase-data
+      - ./metabase_data:/metabase-data
       - ./plugins:/plugins
+
+  dbt-docs:
+    <<: *airflow-common
+    container_name: dbt_docs_server
+    working_dir: /opt/airflow/superstore_dbt
+    command:
+      - "bash"
+      - "-c"
+      - "dbt docs generate && dbt docs serve --host 0.0.0.0 --port 8001"
+    ports:
+      - "8001:8001"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    restart: always
 
 
 volumes:
   postgres-db-volume:
   clickhouse_data:
-  metabase_data:

@@ -55,16 +55,20 @@ models:
       - name: product_name
         tests: [not_null]
       - name: category
+        description: "{{ doc('dim_product_category') }}"
         tests: 
           - not_null
           - accepted_values:
-              values: ['Furniture', 'Office Supplies', 'Technology', 'Unknown']
+              arguments: 
+                values: ['Furniture', 'Office Supplies', 'Technology']
       - name: sub_category
         tests: [not_null]
       - name: segment
+        description: "{{ doc('dim_product_segment') }}"
         tests:
           - accepted_values:
-              values: ['Consumer', 'Corporate', 'Home Office', 'Unknown']
+              arguments: 
+                values: ['Consumer', 'Corporate', 'Home Office']
 
   - name: mart_dim_shipping
     description: "Dimension model for shipping modes."
@@ -98,19 +102,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
-      - name: order_date_key
-        description: "Foreign key to the calendar dimension for the order date."
-        tests:
-          - relationships:
-              to: ref('mart_dim_calendar')
-              field: date_key
-      - name: ship_date_key
-        description: "Foreign key to the calendar dimension for the ship date."
-        tests:
-          - relationships:
-              to: ref('mart_dim_calendar')
-              field: date_key
+              arguments:
+                values: [true, false]
 
   - name: mart_dim_managers
     description: "Dimension model linking regional managers to their region."

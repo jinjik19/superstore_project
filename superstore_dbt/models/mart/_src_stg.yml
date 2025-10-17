@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: superstore_db
+  - name: stg_superstore
     description: "Contains raw staging data loaded from the Superstore.xls file."
     database: superstore_db
     freshness:

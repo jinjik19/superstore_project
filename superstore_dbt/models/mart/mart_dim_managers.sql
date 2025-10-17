@@ -10,10 +10,3 @@ SELECT
     person,
     region
 FROM deduplicated_stg_people
-
-UNION ALL
-
-SELECT
-    toInt64(0) AS manager_key,
-    toString('Unknown') AS person,
-    toString('Unknown') AS region

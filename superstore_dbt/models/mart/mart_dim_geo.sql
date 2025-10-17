@@ -19,13 +19,3 @@ SELECT
     state,
     postal_code
 FROM deduplicated_geo
-
-UNION ALL
-
-SELECT
-    toInt64(0) AS geo_key,
-    toString('Unknown') AS country,
-    toString('Unknown') AS region,
-    toString('Unknown') AS city,
-    toString('Unknown') AS state,
-    toString('Unknown') AS postal_code

@@ -8,6 +8,5 @@ superstore_dbt:
       database: superstore_db
       threads: 4
       host: clickhouse
-      user: jinjik
-      password: 1q2w3e4r5t
+      user: default
       secure: false

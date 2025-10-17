@@ -16,13 +16,3 @@ SELECT
     sub_category,
     segment
 FROM deduplicated_product
-
-UNION ALL
-
-SELECT
-    toInt64(0) AS product_key,
-    toString('Unknown') AS product_id,
-    toString('Unknown') AS product_name,
-    toString('Unknown') AS category,
-    toString('Unknown') AS sub_category,
-    toString('Unknown') AS segment

@@ -8,10 +8,3 @@ SELECT
     customer_id,
     customer_name
 FROM deduplicated_customers
-
-UNION ALL
-
-SELECT 
-    toInt64(0) AS customer_key,
-    toString('Unknown') AS customer_id,
-    toString('Unknown Customer') AS customer_name
