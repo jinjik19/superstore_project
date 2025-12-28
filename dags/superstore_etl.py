@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 from typing import Any
 
@@ -8,7 +9,7 @@ from airflow.models.taskinstance import TaskInstance
 from airflow.sdk import Variable, dag, task
 from clickhouse_connect import get_client
 
-from utils import create_logger, to_snake_case
+from utils import create_logger, to_snake_case, log_metrics
 
 
 logger = create_logger()
@@ -70,6 +71,7 @@ def etl_superstore() -> None:
         table_names = ["Orders", "Returns", "People"]
 
         for sheet_name in table_names:
+            start = time.time()
             logger.info(f"Reading sheet: {sheet_name}")
             df = pd.read_excel(file_to_process, sheet_name=sheet_name)
             df.rename(columns=to_snake_case, inplace=True)
@@ -77,19 +79,62 @@ def etl_superstore() -> None:
             df["load_date"] = datetime.now()
             df["batch_id"] = run_id
             map_df[sheet_name.lower()] = df
-
+            log_metrics(
+                "elt",
+                "step_duration",
+                time.time() - start,
+                table=sheet_name.lower(),
+                details='{"step": "extract"}',
+            )
 
 
         for name, df in map_df.items():
+            start=time.time()
             table_name = f"stg_{name}"
             logger.info(f"Dataframe {table_name} preview:\n{df.head()}")
+
+            if table_name in {"stg_orders"}:
+                nulls = df["customer_id"].isnull().sum()
+                log_metrics(
+                    "data_quality",
+                    "nulls_count",
+                    nulls,
+                    table=table_name,
+                    details='{"column": "customer_id"}'
+                )
+
+            if table_name in {"stg_orders", "stg_returns"}:
+                duplicates = df.duplicated(subset=["order_id"]).sum()
+                log_metrics(
+                    "data_quality",
+                    "duplicate_count",
+                    duplicates,
+                    table=table_name,
+                    details='{"column": "order_id"}'
+                )
+
             client.insert_df(table=table_name, df=df)
+            log_metrics(
+                "elt",
+                "step_duration",
+                time.time() - start,
+                table=table_name,
+                details='{"step": "load"}',
+            )
+
+            log_metrics(
+                "elt",
+                "rows_processed",
+                len(df),
+                table=table_name,
+            )
+
 
     @task.bash
     def run_transformation() -> str:
         return "cd /opt/airflow/superstore_dbt/ && dbt build"
 
     processed_file_path = get_file_path()
-    read_excel_to_clickhouse(processed_file_path)  >> run_transformation()
+    read_excel_to_clickhouse(processed_file_path) >> run_transformation()
 
 etl_superstore()

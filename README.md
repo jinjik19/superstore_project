@@ -8,7 +8,8 @@ The pipeline performs ETL (Extract, Transform, Load) operations, builds a data m
 ## 🛠️ Tech Stack & Architecture
 
 ### Tech Stack
-
+* [![Poetry](https://img.shields.io/badge/Poetry-%233B82F6.svg?style=for-the-badge&logo=poetry&logoColor=white)](https://python-poetry.org/)
+* [![Grafana](https://img.shields.io/badge/grafana-%23F46800.svg?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/)
 * [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 * [![Pandas](https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 * [![ClickHouse](https://img.shields.io/badge/ClickHouse-FFCC01?style=for-the-badge&logo=clickhouse&logoColor=black)](https://clickhouse.com/)
@@ -93,7 +94,7 @@ The pipeline performs ETL (Extract, Transform, Load) operations, builds a data m
    
 4. **Build and run the services:** 
    ```bash 
-   docker-compose up --build -d 
+   make up
    ```
 
 5. **Copy Superstore.xls to input folder.**
@@ -108,9 +109,10 @@ The pipeline performs ETL (Extract, Transform, Load) operations, builds a data m
 
 - http://localhost:8080 - Airflow UI. You can manage DAGS. The first DAG is named `file_watch_superstore`. `file_watch_superstore` check file Superstore.xls in folder `data/input/`. When Superstore.xls catched, after that `file_watch_superstore` triggered the second DAG `superstore_etl`. This DAG run load data from file to Clickhouse and after that transform and create data mart
 
-- http://localhost:8000 - Metabase Dashboard. test@example.com/superstore12345
+- http://localhost:3001 - Metabase Dashboard. test@example.com/superstore12345
 - http://localhost:8001 - dbt data docs.
 - http://localhost:8123 - URI for connect to Clickhouse. USER: default
+- http://localhost:3000 - Grafana Dashboard
 
 ---
 
@@ -137,6 +139,64 @@ Final Data Mart Fact table: mart_fct_sales
 
 ---
 
+## 📊 Monitoring
+
+### Overview
+The pipeline collects operational metrics during execution to track performance and data quality. Metrics are stored in ClickHouse and visualized in Grafana.
+
+### Metrics Collected
+
+#### ETL Performance
+- **Extract Duration**: Time to read CSV file
+- **Load Duration**: Time to write data to ClickHouse staging tables
+- **Rows Processed**: Total records loaded per pipeline run
+
+#### Data Quality
+- **Null Values**: Count of null values in critical columns (Customer ID, Order ID)
+- **Duplicate Records**: Duplicate Order IDs detected before loading
+
+### Visualization
+
+![Pipeline Monitoring](./docs/images/grafana_dashboard.png)
+
+**Panels**:
+1. **ETL Step Duration** (Time Series) - Shows extract vs load performance over time
+2. **Data Quality Issues** (Table) - Recent null value and duplicate detections
+3. **Rows Processed** (Stat) - Records processed in the last pipeline run
+
+
+#### Airflow Monitoring
+![Airflow DAG 1](./docs/images/file_watcher_superstore.png)
+![Airflow DAG 2](./docs/images/superstore_etl.png)
+
+Pipeline orchestration, task status, and execution logs are monitored through Airflow's native UI.
+
+### Technology Choices
+
+**Why ClickHouse for metrics?**
+- Already part of the data stack (no additional infrastructure)
+- Efficient for time-series metric storage
+- Simple integration with existing ETL code
+- Appropriate for this project's scale
+
+**Production considerations:**
+In a production environment, I would implement:
+- **Prometheus** for application and infrastructure metrics
+- **Alertmanager** for automated incident response
+- **Separate metrics infrastructure** to ensure observability during system failures
+- **SLA monitoring** with automated alerting on pipeline latency and data freshness
+
+### Setup
+
+1. **Configure Grafana datasource**:
+   - Add ClickHouse datasource
+   - Host: `clickhouse:8123`
+   - Database: `superstore_db`
+
+2. **Import dashboard** or create panels using queries in [.docs/grafana/README.md](./docs/grafana/README.md)
+
+---
+
 ## 📊 Dashboard
 
 ### KPI
@@ -150,3 +210,10 @@ Final Data Mart Fact table: mart_fct_sales
 
 ### Customers
 ![Customers](./docs/images/Dashboard-4.png)
+
+---
+
+## Shutdown
+```bash
+make down
+```

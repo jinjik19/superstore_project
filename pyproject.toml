@@ -13,6 +13,7 @@ dependencies = [
     "dbt-core (==1.10.13)",
     "dbt-clickhouse (==1.9.4)",
     "xlrd (==2.0.2)",
+    "python-dotenv (==1.2.1)",
 ]
 
 [tool.poetry]

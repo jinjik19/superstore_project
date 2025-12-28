@@ -12,7 +12,7 @@ type-check:
 check: lint type-check
 
 up:
-	docker-compose up -d
+	docker-compose up --build -d
 
 down:
 	docker-compose down

@@ -53,3 +53,14 @@ CREATE TABLE IF NOT EXISTS stg_returns
 )
 ENGINE = ReplacingMergeTree(load_date)
 ORDER BY (order_id, load_date);
+
+CREATE TABLE IF NOT EXISTS pipeline_metrics (
+    timestamp DateTime DEFAULT now(),
+    category String,  -- 'etl', 'data_quality', 'dbt', 'table_stats'
+    name String,
+    value Float64,
+    table_name String DEFAULT '',
+    details String DEFAULT ''
+) ENGINE = MergeTree()
+ORDER BY (category, timestamp)
+TTL timestamp + INTERVAL 90 DAY;
